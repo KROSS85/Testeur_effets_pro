@@ -1,0 +1,673 @@
+class OrganicLifeRespirationPro extends BaseEffect {
+    constructor(config = {}) {
+        super({
+            id: 'organic-life-respiration-pro-ultimate',
+            name: 'Organic Life Respiration Pro',
+            category: 'image',
+            version: '2.0',
+            performance: 'medium',
+            parameters: {
+                vitesse: { type: 'range', min: 0.1, max: 3, default: 1 },
+                intensite: { type: 'range', min: 0, max: 1, default: 0.8 },
+                amplitude: { type: 'range', min: 0.05, max: 0.5, default: 0.25 },
+                rythme: { type: 'range', min: 0.5, max: 2, default: 1 },
+                circulation: { type: 'range', min: 0, max: 1, default: 0.9 },
+                stress: { type: 'range', min: 0, max: 1, default: 0.2 },
+                // Nouveaux paramètres premium
+                haloIntensity: { type: 'range', min: 0, max: 1, default: 0.7 },
+                particleDensity: { type: 'range', min: 0, max: 1, default: 0.6 },
+                thermalDistortion: { type: 'range', min: 0, max: 1, default: 0.4 },
+                volumetricLight: { type: 'range', min: 0, max: 1, default: 0.5 },
+                colorTheme: { type: 'select', options: ['cosmic', 'bio', 'neon'], default: 'bio' }
+            }
+        });
+
+        // Système de respiration physiologique amélioré
+        this.temps = 0;
+        this.phaseRespiration = 'inspiration';
+        this.cycleRespiration = 0;
+        this.dureeInspiration = 4000;
+        this.dureeExpiration = 6000;
+        this.dureePause = 1000;
+        
+        // Variables physiologiques premium
+        this.frequenceCardiaque = 72;
+        this.variabilite = 0;
+        this.niveauStress = 0.2;
+        this.profondeurRespiration = 1;
+        
+        // Système de déformation organique avancée
+        this.pointsDeformation = [];
+        this.nombrePoints = 24; // Augmenté pour plus de fluidité
+        this.rayonInfluence = 150;
+        
+        // Pulsation chromatique et circulation premium
+        this.pulsationChromatique = 0;
+        this.intensiteCouleur = 0;
+        this.teintes = {
+            cosmic: { 
+                base: { r: 120, g: 80, b: 220 }, 
+                pulse: { r: 180, g: 120, b: 255 },
+                highlight: { r: 220, g: 180, b: 255 }
+            },
+            bio: { 
+                base: { r: 220, g: 100, b: 100 }, 
+                pulse: { r: 255, g: 160, b: 160 },
+                highlight: { r: 255, g: 220, b: 180 }
+            },
+            neon: { 
+                base: { r: 255, g: 50, b: 150 }, 
+                pulse: { r: 255, g: 150, b: 50 },
+                highlight: { r: 100, g: 255, b: 220 }
+            }
+        };
+        
+        // Canvas pour effets complexes
+        this.canvasDeformation = null;
+        this.ctxDeformation = null;
+        this.canvasCirculation = null;
+        this.ctxCirculation = null;
+        this.canvasParticles = null;
+        this.ctxParticles = null;
+        this.canvasThermal = null;
+        this.ctxThermal = null;
+        
+        // Micro-variations organiques premium
+        this.microVibrations = [];
+        this.tensionMusculaire = 0;
+        
+        // Système de pauses dramatiques
+        this.pauseActive = false;
+        this.prochainePause = 15000;
+        this.dureePauseActuelle = 0;
+        
+        // Mémoire des cycles précédents pour adaptation
+        this.historiqueCycles = [];
+        this.adaptationRythme = 0;
+        
+        // NOUVEAUX SYSTÈMES PREMIUM
+        this.particles = [];
+        this.maxParticles = 150;
+        this.thermalWaves = [];
+        this.volumetricRays = [];
+        this.haloLayers = [];
+        this.parallaxOffset = { x: 0, y: 0 };
+        
+        // Paramètres de performance dynamique
+        this.performanceLevel = 'high';
+        this.frameTimeHistory = [];
+        this.lastFrameTime = 0;
+    }
+
+    initialize(canvas, element) {
+        // Canvas pour déformations organiques
+        this.canvasDeformation = document.createElement('canvas');
+        this.canvasDeformation.width = canvas.width;
+        this.canvasDeformation.height = canvas.height;
+        this.ctxDeformation = this.canvasDeformation.getContext('2d');
+        
+        // Canvas pour circulation sanguine
+        this.canvasCirculation = document.createElement('canvas');
+        this.canvasCirculation.width = canvas.width;
+        this.canvasCirculation.height = canvas.height;
+        this.ctxCirculation = this.canvasCirculation.getContext('2d');
+        
+        // Canvas pour particules premium
+        this.canvasParticles = document.createElement('canvas');
+        this.canvasParticles.width = canvas.width;
+        this.canvasParticles.height = canvas.height;
+        this.ctxParticles = this.canvasParticles.getContext('2d');
+        
+        // Canvas pour distorsion thermique
+        this.canvasThermal = document.createElement('canvas');
+        this.canvasThermal.width = canvas.width;
+        this.canvasThermal.height = canvas.height;
+        this.ctxThermal = this.canvasThermal.getContext('2d');
+        
+        // Initialisation des systèmes premium
+        this.initPointsDeformation(element);
+        this.initMicroVibrations();
+        this.initParticles();
+        this.initThermalWaves();
+        this.initVolumetricRays();
+        this.initHaloLayers();
+        this.ajusterRythmeInitial(element);
+        
+        // Détection des performances
+        this.detectPerformance();
+    }
+
+    // NOUVELLES MÉTHODES PREMIUM
+    initParticles() {
+        this.particles = [];
+        const density = this.maxParticles * this.parameters.particleDensity.value;
+        
+        for (let i = 0; i < density; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvasParticles.width,
+                y: Math.random() * this.canvasParticles.height,
+                size: 1 + Math.random() * 3,
+                speedX: (Math.random() - 0.5) * 0.5,
+                speedY: (Math.random() - 0.5) * 0.5,
+                life: Math.random(),
+                maxLife: 0.5 + Math.random() * 1.5,
+                color: this.getThemeColor('base'),
+                pulsePhase: Math.random() * Math.PI * 2,
+                connected: Math.random() > 0.7
+            });
+        }
+    }
+
+    initThermalWaves() {
+        this.thermalWaves = [];
+        const count = 5 + Math.floor(this.parameters.thermalDistortion.value * 10);
+        
+        for (let i = 0; i < count; i++) {
+            this.thermalWaves.push({
+                x: Math.random() * this.canvasThermal.width,
+                y: Math.random() * this.canvasThermal.height,
+                radius: 10 + Math.random() * 50,
+                maxRadius: 100 + Math.random() * 200,
+                speed: 0.2 + Math.random() * 0.8,
+                intensity: 0.3 + Math.random() * 0.7,
+                life: 0
+            });
+        }
+    }
+
+    initVolumetricRays() {
+        this.volumetricRays = [];
+        const count = 3 + Math.floor(this.parameters.volumetricLight.value * 7);
+        
+        for (let i = 0; i < count; i++) {
+            const angle = (i / count) * Math.PI * 2;
+            this.volumetricRays.push({
+                angle: angle,
+                length: 0,
+                maxLength: 100 + Math.random() * 200,
+                width: 2 + Math.random() * 8,
+                speed: 0.01 + Math.random() * 0.03,
+                opacity: 0.1 + Math.random() * 0.3,
+                pulsePhase: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    initHaloLayers() {
+        this.haloLayers = [];
+        const count = 3 + Math.floor(this.parameters.haloIntensity.value * 5);
+        
+        for (let i = 0; i < count; i++) {
+            this.haloLayers.push({
+                radius: 50 + i * 40,
+                maxRadius: 200 + i * 60,
+                opacity: 0.2 - i * 0.05,
+                pulseSpeed: 0.01 + i * 0.005,
+                parallaxFactor: 0.2 + i * 0.1,
+                color: this.getThemeColor(i === 0 ? 'pulse' : 'base')
+            });
+        }
+    }
+
+    getThemeColor(type) {
+        const theme = this.teintes[this.parameters.colorTheme.value];
+        return theme[type] || theme.base;
+    }
+
+    detectPerformance() {
+        // Détecter les capacités de l'appareil
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isLowEnd = isMobile || navigator.hardwareConcurrency < 4;
+        
+        if (isLowEnd) {
+            this.performanceLevel = 'medium';
+            this.maxParticles = 50;
+            this.nombrePoints = 16;
+        } else {
+            this.performanceLevel = 'high';
+        }
+    }
+
+    // MÉTHODES D'ANIMATION PREMIUM
+    update(deltaTime) {
+        // Suivi des performances
+        this.trackPerformance(deltaTime);
+        
+        this.temps += deltaTime * this.parameters.vitesse.value;
+        
+        // Mise à jour des systèmes existants
+        this.updateNiveauStress(deltaTime);
+        this.updateCycleRespiration(deltaTime);
+        this.updateDeformationsOrganiques(deltaTime);
+        this.updateCirculationChromatique(deltaTime);
+        this.updateMicroVibrations(deltaTime);
+        this.updatePausesDramatiques(deltaTime);
+        this.updateAdaptationRythme();
+        
+        // Mise à jour des systèmes premium
+        this.updateParticles(deltaTime);
+        this.updateThermalWaves(deltaTime);
+        this.updateVolumetricRays(deltaTime);
+        this.updateHaloLayers(deltaTime);
+        this.updateParallaxEffect();
+    }
+
+    updateParticles(deltaTime) {
+        const breathFactor = this.profondeurRespiration * 0.5 + 0.5;
+        const centerX = this.canvasParticles.width / 2;
+        const centerY = this.canvasParticles.height / 2;
+        
+        this.particles.forEach(particle => {
+            // Mise à jour de la vie
+            particle.life += deltaTime * 0.001;
+            if (particle.life > particle.maxLife) {
+                particle.life = 0;
+                particle.x = centerX + (Math.random() - 0.5) * 100;
+                particle.y = centerY + (Math.random() - 0.5) * 100;
+            }
+            
+            // Mouvement organique
+            const angle = Math.atan2(particle.y - centerY, particle.x - centerX);
+            const distance = Math.sqrt(
+                Math.pow(particle.x - centerX, 2) + 
+                Math.pow(particle.y - centerY, 2)
+            );
+            
+            // Respiration influence le mouvement
+            const breathEffect = Math.sin(this.temps * 0.001 + particle.pulsePhase) * breathFactor;
+            particle.speedX = Math.cos(angle) * breathEffect * 0.2;
+            particle.speedY = Math.sin(angle) * breathEffect * 0.2;
+            
+            // Ajouter une composante aléatoire
+            particle.speedX += (Math.random() - 0.5) * 0.1;
+            particle.speedY += (Math.random() - 0.5) * 0.1;
+            
+            // Appliquer le mouvement
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            
+            // Pulsation de taille
+            particle.size = (1 + Math.sin(this.temps * 0.005 + particle.pulsePhase) * 0.5) * 
+                           (1 + breathFactor * 0.5);
+            
+            // Couleur dynamique
+            const lifeFactor = 1 - (particle.life / particle.maxLife);
+            const themeColor = this.getThemeColor('base');
+            particle.color = {
+                r: themeColor.r + (this.getThemeColor('pulse').r - themeColor.r) * lifeFactor,
+                g: themeColor.g + (this.getThemeColor('pulse').g - themeColor.g) * lifeFactor,
+                b: themeColor.b + (this.getThemeColor('pulse').b - themeColor.b) * lifeFactor
+            };
+        });
+    }
+
+    updateThermalWaves(deltaTime) {
+        const intensity = this.parameters.thermalDistortion.value;
+        if (intensity < 0.1) return;
+        
+        this.thermalWaves.forEach(wave => {
+            wave.life += deltaTime * 0.001 * wave.speed;
+            if (wave.life > 1) {
+                wave.life = 0;
+                wave.x = Math.random() * this.canvasThermal.width;
+                wave.y = Math.random() * this.canvasThermal.height;
+                wave.intensity = 0.3 + Math.random() * 0.7;
+            }
+            
+            // Calcul du rayon actuel
+            const progress = wave.life;
+            wave.radius = progress * wave.maxRadius;
+            
+            // L'intensité diminue avec la distance
+            wave.currentIntensity = wave.intensity * (1 - progress) * intensity;
+        });
+    }
+
+    updateVolumetricRays(deltaTime) {
+        const intensity = this.parameters.volumetricLight.value;
+        if (intensity < 0.1) return;
+        
+        this.volumetricRays.forEach(ray => {
+            ray.pulsePhase += deltaTime * 0.001 * ray.speed;
+            
+            // La longueur des rayons varie avec la respiration
+            const breathEffect = this.profondeurRespiration * 0.7 + 0.3;
+            ray.length = ray.maxLength * breathEffect * 
+                        (0.7 + Math.sin(ray.pulsePhase) * 0.3);
+            
+            // L'opacité varie avec la pulsation cardiaque
+            ray.currentOpacity = ray.opacity * intensity * 
+                                 (0.8 + Math.sin(this.temps * 0.001 * this.frequenceCardiaque / 60) * 0.2);
+        });
+    }
+
+    updateHaloLayers(deltaTime) {
+        const intensity = this.parameters.haloIntensity.value;
+        if (intensity < 0.1) return;
+        
+        this.haloLayers.forEach(layer => {
+            layer.pulsePhase += deltaTime * 0.001 * layer.pulseSpeed;
+            
+            // Le rayon varie avec la respiration et la pulsation
+            const breathEffect = this.profondeurRespiration * 0.5 + 0.5;
+            const pulseEffect = Math.sin(layer.pulsePhase) * 0.2 + 0.8;
+            layer.currentRadius = layer.radius * breathEffect * pulseEffect;
+            
+            // L'opacité varie avec la pulsation
+            layer.currentOpacity = layer.opacity * intensity * pulseEffect;
+        });
+    }
+
+    updateParallaxEffect() {
+        // Effet de parallaxe subtil basé sur la position de la souris
+        if (this.mouseX && this.mouseY) {
+            const centerX = this.canvasDeformation.width / 2;
+            const centerY = this.canvasDeformation.height / 2;
+            
+            this.parallaxOffset.x = (this.mouseX - centerX) / centerX * 10;
+            this.parallaxOffset.y = (this.mouseY - centerY) / centerY * 10;
+        } else {
+            // Animation automatique si pas d'interaction
+            this.parallaxOffset.x = Math.sin(this.temps * 0.0005) * 5;
+            this.parallaxOffset.y = Math.cos(this.temps * 0.0007) * 5;
+        }
+    }
+
+    trackPerformance(deltaTime) {
+        this.frameTimeHistory.push(deltaTime);
+        if (this.frameTimeHistory.length > 60) {
+            this.frameTimeHistory.shift();
+        }
+        
+        // Ajuster la qualité si nécessaire
+        if (this.frameTimeHistory.length === 60) {
+            const avgFrameTime = this.frameTimeHistory.reduce((a, b) => a + b, 0) / 60;
+            
+            if (avgFrameTime > 20 && this.performanceLevel === 'high') {
+                this.performanceLevel = 'medium';
+                this.maxParticles = 80;
+                this.nombrePoints = 20;
+            } else if (avgFrameTime > 33 && this.performanceLevel === 'medium') {
+                this.performanceLevel = 'low';
+                this.maxParticles = 30;
+                this.nombrePoints = 12;
+            }
+        }
+    }
+
+    // MÉTHODES DE RENDU PREMIUM
+    render(ctx, element, deltaTime) {
+        const { width, height } = ctx.canvas;
+        
+        ctx.save();
+        
+        // Nettoyage des canvas temporaires
+        this.ctxDeformation.clearRect(0, 0, width, height);
+        this.ctxCirculation.clearRect(0, 0, width, height);
+        this.ctxParticles.clearRect(0, 0, width, height);
+        this.ctxThermal.clearRect(0, 0, width, height);
+        
+        // Calcul des transformations de respiration
+        const scaleRespiration = 1 + this.profondeurRespiration;
+        const centreX = element.x + element.width / 2;
+        const centreY = element.y + element.height / 2;
+        
+        // Application des micro-vibrations
+        let offsetX = 0, offsetY = 0;
+        this.microVibrations.forEach(vibration => {
+            if (!vibration.actif) return;
+            offsetX += Math.sin(vibration.phase) * vibration.amplitudeActuelle;
+            offsetY += Math.cos(vibration.phase * 1.3) * vibration.amplitudeActuelle;
+        });
+        
+        // Ordre de rendu premium (arrière-plan vers avant)
+        this.renderThermalDistortion(ctx, element, centreX, centreY);
+        this.renderVolumetricLight(ctx, element, centreX, centreY);
+        this.renderHaloLayers(ctx, element, centreX, centreY);
+        this.renderCirculationSanguine(ctx, element, centreX, centreY);
+        this.renderParticles(ctx, element, centreX, centreY);
+        this.renderElementAvecDeformations(ctx, element, scaleRespiration, offsetX, offsetY);
+        this.renderEffetsSurface(ctx, element, centreX, centreY);
+        this.renderIndicationPhase(ctx, centreX, centreY);
+        
+        ctx.restore();
+    }
+
+    renderThermalDistortion(ctx, element, centreX, centreY) {
+        if (this.parameters.thermalDistortion.value < 0.1) return;
+        
+        ctx.save();
+        
+        // Appliquer un effet de distorsion thermique
+        this.thermalWaves.forEach(wave => {
+            if (wave.currentIntensity < 0.05) return;
+            
+            const gradient = ctx.createRadialGradient(
+                wave.x, wave.y, 0,
+                wave.x, wave.y, wave.radius
+            );
+            
+            const alpha = wave.currentIntensity * 0.1;
+            const themeColor = this.getThemeColor('base');
+            
+            gradient.addColorStop(0, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, ${alpha})`);
+            gradient.addColorStop(0.7, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, ${alpha * 0.5})`);
+            gradient.addColorStop(1, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        ctx.restore();
+    }
+
+    renderVolumetricLight(ctx, element, centreX, centreY) {
+        if (this.parameters.volumetricLight.value < 0.1) return;
+        
+        ctx.save();
+        
+        this.volumetricRays.forEach(ray => {
+            if (ray.currentOpacity < 0.02) return;
+            
+            const endX = centreX + Math.cos(ray.angle) * ray.length;
+            const endY = centreY + Math.sin(ray.angle) * ray.length;
+            
+            const gradient = ctx.createLinearGradient(centreX, centreY, endX, endY);
+            const themeColor = this.getThemeColor('highlight');
+            
+            gradient.addColorStop(0, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, ${ray.currentOpacity})`);
+            gradient.addColorStop(1, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, 0)`);
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = ray.width;
+            ctx.lineCap = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(centreX, centreY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        });
+        
+        ctx.restore();
+    }
+
+    renderHaloLayers(ctx, element, centreX, centreY) {
+        if (this.parameters.haloIntensity.value < 0.1) return;
+        
+        ctx.save();
+        
+        this.haloLayers.forEach((layer, index) => {
+            if (layer.currentOpacity < 0.02) return;
+            
+            // Appliquer l'effet de parallaxe
+            const parallaxX = centreX + this.parallaxOffset.x * layer.parallaxFactor;
+            const parallaxY = centreY + this.parallaxOffset.y * layer.parallaxFactor;
+            
+            const gradient = ctx.createRadialGradient(
+                parallaxX, parallaxY, 0,
+                parallaxX, parallaxY, layer.currentRadius
+            );
+            
+            const alpha = layer.currentOpacity * (1 - index * 0.2);
+            const themeColor = layer.color;
+            
+            gradient.addColorStop(0, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, ${alpha})`);
+            gradient.addColorStop(0.7, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, ${alpha * 0.5})`);
+            gradient.addColorStop(1, `rgba(${themeColor.r}, ${themeColor.g}, ${themeColor.b}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(parallaxX, parallaxY, layer.currentRadius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        ctx.restore();
+    }
+
+    renderParticles(ctx, element, centreX, centreY) {
+        if (this.parameters.particleDensity.value < 0.1) return;
+        
+        ctx.save();
+        
+        // Rendre les particules
+        this.particles.forEach(particle => {
+            const lifeFactor = 1 - (particle.life / particle.maxLife);
+            const alpha = lifeFactor * 0.8;
+            
+            if (alpha < 0.05) return;
+            
+            ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Connexions entre particules proches
+            if (particle.connected) {
+                this.particles.forEach(other => {
+                    if (other === particle || !other.connected) return;
+                    
+                    const dx = particle.x - other.x;
+                    const dy = particle.y - other.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        const connectionAlpha = (1 - distance / 100) * alpha * 0.3;
+                        ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${connectionAlpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.stroke();
+                    }
+                });
+            }
+        });
+        
+        ctx.restore();
+    }
+
+    // ... (conserver les autres méthodes de rendu existantes avec améliorations)
+    
+    // MÉTHODES UTILITAIRES PREMIUM
+    setMousePosition(x, y) {
+        this.mouseX = x;
+        this.mouseY = y;
+    }
+    
+    applyPreset(presetName) {
+        switch(presetName) {
+            case 'cosmic':
+                this.parameters.vitesse.value = 0.8;
+                this.parameters.intensite.value = 0.9;
+                this.parameters.amplitude.value = 0.3;
+                this.parameters.circulation.value = 0.7;
+                this.parameters.stress.value = 0.1;
+                this.parameters.haloIntensity.value = 0.9;
+                this.parameters.particleDensity.value = 0.8;
+                this.parameters.thermalDistortion.value = 0.3;
+                this.parameters.volumetricLight.value = 0.7;
+                this.parameters.colorTheme.value = 'cosmic';
+                break;
+                
+            case 'bio':
+                this.parameters.vitesse.value = 1.0;
+                this.parameters.intensite.value = 0.7;
+                this.parameters.amplitude.value = 0.25;
+                this.parameters.circulation.value = 0.9;
+                this.parameters.stress.value = 0.2;
+                this.parameters.haloIntensity.value = 0.6;
+                this.parameters.particleDensity.value = 0.5;
+                this.parameters.thermalDistortion.value = 0.4;
+                this.parameters.volumetricLight.value = 0.4;
+                this.parameters.colorTheme.value = 'bio';
+                break;
+                
+            case 'neon':
+                this.parameters.vitesse.value = 1.5;
+                this.parameters.intensite.value = 1.0;
+                this.parameters.amplitude.value = 0.4;
+                this.parameters.circulation.value = 0.8;
+                this.parameters.stress.value = 0.3;
+                this.parameters.haloIntensity.value = 0.8;
+                this.parameters.particleDensity.value = 0.7;
+                this.parameters.thermalDistortion.value = 0.2;
+                this.parameters.volumetricLight.value = 0.6;
+                this.parameters.colorTheme.value = 'neon';
+                break;
+        }
+    }
+    
+    exportSettings() {
+        return {
+            parameters: this.parameters,
+            performanceLevel: this.performanceLevel
+        };
+    }
+    
+    importSettings(settings) {
+        if (settings.parameters) {
+            Object.keys(settings.parameters).forEach(key => {
+                if (this.parameters[key]) {
+                    this.parameters[key].value = settings.parameters[key].value;
+                }
+            });
+        }
+        
+        if (settings.performanceLevel) {
+            this.performanceLevel = settings.performanceLevel;
+        }
+    }
+    
+    destroy() {
+        // Nettoyage complet des ressources
+        this.pointsDeformation = [];
+        this.microVibrations = [];
+        this.historiqueCycles = [];
+        this.particles = [];
+        this.thermalWaves = [];
+        this.volumetricRays = [];
+        this.haloLayers = [];
+        
+        if (this.canvasDeformation) {
+            this.canvasDeformation = null;
+            this.ctxDeformation = null;
+        }
+        
+        if (this.canvasCirculation) {
+            this.canvasCirculation = null;
+            this.ctxCirculation = null;
+        }
+        
+        if (this.canvasParticles) {
+            this.canvasParticles = null;
+            this.ctxParticles = null;
+        }
+        
+        if (this.canvasThermal) {
+            this.canvasThermal = null;
+            this.ctxThermal = null;
+        }
+    }
+}
